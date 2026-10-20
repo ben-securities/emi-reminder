@@ -42,7 +42,13 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             2>&1 | tee xcodebuild.log || {
               echo "==== XCODEBUILD FAILED ===="
-              tail -n 60 xcodebuild.log
+              python3 -c "
+              for line in open('xcodebuild.log'):
+                  if any(w in line.lower() for w in ['error:', 'fatal error:', '** archive failed **']):
+                      print(f'::error::{line.strip()}')
+              for line in open('xcodebuild.log').readlines()[-30:]:
+                  print(f'::error::[TAIL] {line.strip()}')
+              "
               exit 1
             }
 
