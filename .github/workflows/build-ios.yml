@@ -24,6 +24,9 @@ jobs:
       - name: Sync Capacitor iOS
         run: npx cap sync ios
 
+      - name: List Xcode Schemes
+        run: xcodebuild -list -project ios/App/App.xcodeproj
+
       - name: Build Xcode Archive (Unsigned for Sideloading)
         run: |
           set -o pipefail
@@ -38,8 +41,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_STYLE=Manual \
             2>&1 | tee xcodebuild.log || {
-              echo "==== XCODEBUILD COMPILATION ERROR LOG ===="
-              grep -E -C 3 "(error:|fatal error:)" xcodebuild.log | head -n 50 || tail -n 80 xcodebuild.log
+              echo "==== XCODEBUILD FAILED ===="
+              tail -n 60 xcodebuild.log
               exit 1
             }
 
