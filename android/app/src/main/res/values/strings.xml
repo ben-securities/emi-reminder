@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EMI Reminder</string>
+    <string name="title_activity_main">EMI Reminder</string>
+    <string name="package_name">com.splendapps.todolist</string>
+    <string name="custom_url_scheme">com.splendapps.todolist</string>
+</resources>

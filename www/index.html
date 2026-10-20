@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EMI Reminder">
+  <title>EMI Reminder</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-indigo">
+  <div class="desktop-wrapper">
+    <!-- View Switcher Toolbar (Desktop only) -->
+    <header class="preview-toolbar">
+      <div class="logo-tag">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>EMI Reminder</span>
+      </div>
+      <div class="view-controls">
+        <button id="viewToggleBtn" class="pill-btn active" title="Toggle Mobile Mockup Frame">
+          <i class="fa-solid fa-mobile-screen"></i> Mobile View
+        </button>
+        <button id="fullscreenToggleBtn" class="pill-btn" title="Toggle Fullscreen">
+          <i class="fa-solid fa-expand"></i> Fullscreen
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Mobile Device Container -->
+    <div class="device-frame" id="deviceFrame">
+      <div class="app-viewport">
+
+        <!-- ================= MAIN TASKS VIEW ================= -->
+        <main class="view-screen active" id="tasksScreen">
+          <!-- Top App Bar -->
+          <header class="app-bar">
+            <button class="icon-btn" id="openDrawerBtn" aria-label="Open Menu">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="app-title-group">
+              <h1 class="app-title">Tasks</h1>
+              <span class="app-subtitle" id="currentListSubtitle">All Lists</span>
+            </div>
+            <button class="icon-btn" id="toggleSearchBtn" aria-label="Search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+          </header>
+
+          <!-- Search Bar (Collapsible) -->
+          <div class="search-bar-container" id="searchContainer">
+            <div class="search-input-box">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchInput" placeholder="Search tasks...">
+              <button class="clear-search-btn" id="clearSearchBtn">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tasks Scroll Container -->
+          <div class="tasks-scroll-area" id="tasksListArea">
+            <!-- Dynamic task groups will be rendered here -->
+          </div>
+
+          <!-- Floating Action Button (+) -->
+          <button class="fab-btn" id="openNewTaskBtn" aria-label="Add Task">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </main>
+
+        <!-- ================= TASK EDIT / CREATE VIEW ================= -->
+        <section class="view-screen" id="newTaskScreen">
+          <!-- Header -->
+          <header class="app-bar simple-bar">
+            <button class="icon-btn" id="closeNewTaskBtn" aria-label="Back">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h1 class="app-title-simple" id="taskFormTitle">Edit Task</h1>
+            <div class="edit-header-actions" id="editHeaderActions" style="display: flex; margin-left: auto; gap: 6px;">
+              <button class="icon-btn" id="shareTaskBtn" title="Share Task" aria-label="Share">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
+              <button class="icon-btn" id="deleteTaskBtn" style="color: var(--text-overdue);" title="Delete Task" aria-label="Delete">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </header>
+
+          <div class="new-task-form">
+            <!-- Section 1: What is to be done? -->
+            <div class="form-section-title">What is to be done?</div>
+            <div class="form-card">
+              <div class="task-input-row">
+                <input type="text" id="taskTitleInput" class="custom-input" placeholder="Enter Task Here" autocomplete="off">
+                <button class="mic-btn" id="voiceInputBtn" title="Voice dictation">
+                  <i class="fa-solid fa-microphone"></i>
+                </button>
+              </div>
+
+              <!-- Batch Mode Row (New Task mode only) -->
+              <div class="batch-mode-row" id="batchModeRow" style="display: none;">
+                <label for="batchModeToggle" class="switch-label">Add in Batch Mode</label>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="batchModeToggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <!-- Task Finished Row (Edit Task mode - matching user screenshot 53b22bc6) -->
+              <div class="task-finished-row" id="taskFinishedRow">
+                <label class="task-finished-label">
+                  <input type="checkbox" id="taskFinishedCheckbox" class="splend-checkbox-input">
+                  <span class="splend-custom-box">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+                  <span class="finished-label-text">Task finished?</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Section 2: Notification (matching user screenshot 53b22bc6) -->
+            <div class="form-section-title">Notification</div>
+            <div class="form-card notification-card-splend">
+              <!-- Hidden native pickers -->
+              <input type="date" id="hiddenDateInput" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+              <input type="time" id="hiddenTimeInput" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+
+              <!-- Date Row -->
+              <div class="notif-row" id="datePickerRow">
+                <div class="notif-label-col" id="dateLabelCol">
+                  <span class="notif-value-text" id="dateDisplayText">Today</span>
+                </div>
+                <div class="notif-actions-col">
+                  <button type="button" class="notif-icon-btn" id="calendarPickerBtn" title="Select Date">
+                    <i class="fa-regular fa-calendar-days"></i>
+                  </button>
+                  <button type="button" class="notif-icon-btn clear-notif-btn" id="clearDateBtn" title="Clear Date">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="notif-divider"></div>
+
+              <!-- Time Row -->
+              <div class="notif-row" id="timePickerRow">
+                <div class="notif-label-col" id="timeLabelCol">
+                  <span class="notif-value-text" id="timeDisplayText">Time not set (all day)</span>
+                </div>
+                <div class="notif-actions-col">
+                  <button type="button" class="notif-icon-btn" id="timePickerBtn" title="Select Time">
+                    <i class="fa-regular fa-clock"></i>
+                  </button>
+                  <button type="button" class="notif-icon-btn clear-notif-btn" id="clearTimeBtn" title="Clear Time">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="notif-divider"></div>
+
+              <!-- Repeat Row -->
+              <div class="notif-row repeat-notif-row">
+                <div class="repeat-label-left">
+                  <i class="fa-solid fa-arrows-rotate repeat-icon-lead"></i>
+                  <span>Repeat</span>
+                </div>
+                <div class="repeat-controls-right">
+                  <button type="button" class="repeat-pill-btn" id="repeatPillBtn">Once a Month</button>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="repeatToggle" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Task List -->
+            <div class="form-section-title">Task List</div>
+            <div class="form-card list-card">
+              <div class="list-select-row">
+                <div class="select-dropdown-wrapper">
+                  <select id="taskListSelect" class="custom-select">
+                    <!-- Populated dynamically -->
+                  </select>
+                  <i class="fa-solid fa-caret-down select-caret"></i>
+                </div>
+                <button class="add-list-inline-btn" id="addListInlineBtn" title="Create New List">
+                  <i class="fa-solid fa-square-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating Save Button (matching user screenshot) -->
+          <button class="fab-btn save-task-fab" id="saveTaskBtn" aria-label="Save Task">
+            <i class="fa-solid fa-check"></i>
+          </button>
+        </section>
+
+        <!-- ================= SETTINGS SCREEN (matching user screenshot) ================= -->
+        <section class="view-screen" id="settingsScreen">
+          <!-- Settings App Bar -->
+          <header class="app-bar simple-bar">
+            <button class="icon-btn" id="closeSettingsBtn" aria-label="Back">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="settings-title-group" style="display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-gear" style="font-size: 1.15rem; color: var(--accent-cyan);"></i>
+              <h1 class="app-title-simple" style="margin: 0; font-size: 1.25rem;">Settings</h1>
+            </div>
+          </header>
+
+          <div class="settings-scroll-area">
+            <!-- GENERAL SECTION -->
+            <div class="form-section-title">General</div>
+            <div class="form-card settings-card-box">
+              <!-- Remove Ads item -->
+              <div class="settings-list-item" id="settingRemoveAdsRow">
+                <div class="settings-list-icon" style="color: #f87171;">
+                  <i class="fa-solid fa-rectangle-ad"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Remove Ads</div>
+                  <div class="settings-sub-text">One payment to remove ads forever.</div>
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- Theme item -->
+              <div class="settings-list-item" id="settingThemeRow">
+                <div class="settings-list-icon">
+                  <i class="fa-regular fa-sun"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Theme</div>
+                  <div class="settings-sub-text" id="settingThemeSubtitle">Electric Indigo</div>
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- Time Format item -->
+              <div class="settings-list-item" id="settingTimeFormatRow">
+                <div class="settings-list-icon">
+                  <i class="fa-regular fa-clock"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Time format</div>
+                  <div class="settings-sub-text" id="settingTimeFormatSubtitle">12-hour</div>
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- First Day of Week item -->
+              <div class="settings-list-item" id="settingFirstDayRow">
+                <div class="settings-list-icon">
+                  <i class="fa-regular fa-calendar-days"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">First day of week</div>
+                  <div class="settings-sub-text" id="settingFirstDaySubtitle">Sunday</div>
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- Sort Order item -->
+              <div class="settings-list-item" id="settingSortOrderRow">
+                <div class="settings-list-icon">
+                  <i class="fa-solid fa-bars-staggered"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Sort order</div>
+                  <div class="settings-sub-text" id="settingSortOrderSubtitle">Due date + Alphabetically</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NOTIFICATIONS SECTION -->
+            <div class="form-section-title">Notifications</div>
+            <div class="form-card settings-card-box">
+              <!-- Sound item -->
+              <div class="settings-list-item" id="settingSoundRow">
+                <div class="settings-list-icon">
+                  <i class="fa-solid fa-music"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Sound</div>
+                  <div class="settings-sub-text" id="settingSoundSubtitle">Default ringtone (Bubble)</div>
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- Voice item -->
+              <div class="settings-list-item">
+                <div class="settings-list-icon">
+                  <i class="fa-solid fa-head-side-cough"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Voice</div>
+                  <div class="settings-sub-text">Uses system default speech synthesizer (TTS)</div>
+                </div>
+                <div class="settings-list-toggle">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="voiceToggle">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- Vibration item -->
+              <div class="settings-col-item">
+                <div class="settings-list-item" style="padding: 0; margin-bottom: 10px;">
+                  <div class="settings-list-icon">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                  </div>
+                  <div class="settings-list-text">
+                    <div class="settings-main-title">Vibration</div>
+                  </div>
+                  <div class="settings-list-toggle">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="vibrationToggle" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="vibe-segment-container">
+                  <div class="vibe-segment-bar" id="vibrationLevelsRow">
+                    <button type="button" class="vibe-num-btn active" data-vibe="1">1</button>
+                    <button type="button" class="vibe-num-btn" data-vibe="2">2</button>
+                    <button type="button" class="vibe-num-btn" data-vibe="3">3</button>
+                    <button type="button" class="vibe-num-btn" data-vibe="4">4</button>
+                    <button type="button" class="vibe-num-btn" data-vibe="5">5</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- Day summary item -->
+              <div class="settings-col-item">
+                <div class="settings-list-item" style="padding: 0; margin-bottom: 10px;">
+                  <div class="settings-list-icon">
+                    <i class="fa-regular fa-calendar-check"></i>
+                  </div>
+                  <div class="settings-list-text">
+                    <div class="settings-main-title">Day summary</div>
+                  </div>
+                  <div class="settings-list-toggle">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="daySummaryToggle">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="day-summary-time-wrap">
+                  <button type="button" class="day-summary-pill-btn" id="summaryTimePill">8:00 AM</button>
+                  <input type="time" id="hiddenSummaryTimeInput" value="08:00" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+                </div>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <!-- Test Notification row -->
+              <div class="settings-list-item" id="settingTestNotifRow" style="cursor: pointer;">
+                <div class="settings-list-icon" style="color: #38bdf8;">
+                  <i class="fa-solid fa-bell"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Test Notification</div>
+                  <div class="settings-sub-text">Tap to test reminder alarm & notification now</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+              </div>
+            </div>
+
+            <!-- DATA & BACKUP SECTION -->
+            <div class="form-section-title">Data & Backup</div>
+            <div class="form-card settings-card-box">
+              <div class="settings-list-item" id="settingExportRow" style="cursor: pointer;">
+                <div class="settings-list-icon">
+                  <i class="fa-solid fa-file-export" style="color: var(--accent-cyan);"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Export Backup (JSON)</div>
+                  <div class="settings-sub-text">Download all tasks and lists</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <label class="settings-list-item" style="cursor: pointer; margin: 0;">
+                <div class="settings-list-icon">
+                  <i class="fa-solid fa-file-import" style="color: #10b981;"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Import Backup</div>
+                  <div class="settings-sub-text">Restore tasks from backup JSON</div>
+                </div>
+                <input type="file" id="settingImportFileInput" accept=".json" style="display: none;">
+                <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+              </label>
+
+              <div class="settings-item-divider"></div>
+
+              <div class="settings-list-item" id="settingClearLogRow" style="cursor: pointer;">
+                <div class="settings-list-icon">
+                  <i class="fa-solid fa-clock-rotate-left" style="color: #f59e0b;"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Clear Payment Log</div>
+                  <div class="settings-sub-text">Reset finished payment history</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+              </div>
+
+              <div class="settings-item-divider"></div>
+
+              <div class="settings-list-item" id="settingClearAllTasksRow" style="cursor: pointer;">
+                <div class="settings-list-icon">
+                  <i class="fa-solid fa-trash-can" style="color: #ef4444;"></i>
+                </div>
+                <div class="settings-list-text">
+                  <div class="settings-main-title">Clear All Tasks</div>
+                  <div class="settings-sub-text">Delete all active reminders & tasks</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Repeat Options Dialog (matching screenshot 034fc258) -->
+        <div class="modal-dialog-backdrop" id="repeatModal" style="display: none;">
+          <div class="repeat-dialog-card">
+            <div class="repeat-dialog-title">Repeat</div>
+            <div class="repeat-dialog-list">
+              <button type="button" class="repeat-dialog-item" data-repeat="daily">Once a Day</button>
+              <button type="button" class="repeat-dialog-item" data-repeat="weekdays">Once a Day (Mon-Fri)</button>
+              <button type="button" class="repeat-dialog-item" data-repeat="weekly">Once a Week</button>
+              <button type="button" class="repeat-dialog-item" data-repeat="monthly">Once a Month</button>
+              <button type="button" class="repeat-dialog-item" data-repeat="yearly">Once a Year</button>
+              <button type="button" class="repeat-dialog-item" data-repeat="none">No Repeat</button>
+            </div>
+            <div class="repeat-dialog-footer">
+              <button type="button" class="repeat-dialog-cancel" id="cancelRepeatModalBtn">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= NAVIGATION DRAWER ================= -->
+        <div class="drawer-overlay" id="drawerOverlay"></div>
+        <aside class="nav-drawer" id="navDrawer">
+          <!-- Drawer Header -->
+          <div class="drawer-header">
+            <div class="app-brand-badge">
+              <div class="badge-circle">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="brand-text-col">
+                <h2 class="brand-title">EMI Reminder</h2>
+                <span class="brand-sub">by bensec</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task Lists Menu -->
+          <div class="drawer-section-title">TASK LISTS</div>
+          <div class="drawer-menu-list" id="drawerListsContainer">
+            <!-- Dynamic list items will render here -->
+          </div>
+
+          <!-- Edit Lists Button -->
+          <div class="drawer-edit-row">
+            <button class="drawer-action-btn" id="editListsModalBtn">
+              <i class="fa-solid fa-pen"></i>
+              <span>Edit</span>
+            </button>
+          </div>
+
+          <!-- Drawer Footer -->
+          <div class="drawer-footer">
+            <button class="drawer-action-btn" id="settingsBtn">
+              <i class="fa-solid fa-gear"></i>
+              <span>Settings</span>
+            </button>
+            <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+              <i class="fa-regular fa-sun" id="themeIcon"></i>
+            </button>
+          </div>
+        </aside>
+
+        <!-- ================= EDIT / CREATE LIST MODAL ================= -->
+        <div class="modal-backdrop" id="listModalBackdrop">
+          <div class="modal-dialog">
+            <div class="modal-header">
+              <h3 class="modal-title" id="listModalTitle">Manage Lists</h3>
+              <button class="modal-close-btn" id="closeListModalBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+              <div class="add-list-input-row">
+                <input type="text" id="newListNameInput" placeholder="New list name...">
+                <button class="action-submit-btn" id="createNewListSubmitBtn">Add</button>
+              </div>
+              <ul class="modal-lists-items" id="modalListsItemList">
+                <!-- Populated dynamically with delete / rename actions -->
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Choice Selection Dialog for Settings (matching Splend picker style) -->
+        <div class="modal-dialog-backdrop" id="settingChoiceModal" style="display: none;">
+          <div class="repeat-dialog-card">
+            <div class="repeat-dialog-title" id="settingChoiceTitle">Select Option</div>
+            <div class="repeat-dialog-list" id="settingChoiceList">
+              <!-- Dynamically populated options -->
+            </div>
+            <div class="repeat-dialog-footer">
+              <button type="button" class="repeat-dialog-cancel" id="cancelSettingChoiceBtn">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div class="toast-container" id="toastContainer"></div>
+
+      </div><!-- app-viewport -->
+    </div><!-- device-frame -->
+  </div><!-- desktop-wrapper -->
+
+  <script src="app.js"></script>
+</body>
+</html>

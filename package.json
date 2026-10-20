@@ -1,0 +1,20 @@
+{
+  "name": "emi-reminder",
+  "version": "1.0.0",
+  "description": "EMI Reminder - Clean, beautiful EMI reminders and monthly recurring bills tracker",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/local-notifications": "^8.3.1"
+  }
+}
