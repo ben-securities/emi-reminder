@@ -35,12 +35,17 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            clean build
 
       - name: Package Payload into IPA
         run: |
           mkdir -p build/Payload
-          cp -r build/DerivedData/Build/Products/Release-iphoneos/App.app build/Payload/
+          APP_PATH=$(find build/DerivedData -name "App.app" -type d | head -n 1)
+          echo "Found app at: $APP_PATH"
+          cp -r "$APP_PATH" build/Payload/
           cd build
           zip -r EMI_Reminder.ipa Payload
           ls -la EMI_Reminder.ipa
