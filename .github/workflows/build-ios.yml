@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-ios:
     runs-on: macos-14
@@ -66,3 +69,11 @@ jobs:
           name: EMI_Reminder_iOS
           path: build/EMI_Reminder.ipa
           retention-days: 7
+
+      - name: Release IPA on GitHub
+        uses: softprops/action-gh-release@v2
+        if: success()
+        with:
+          tag_name: v1.0.0
+          name: EMI Reminder iOS v1.0.0
+          files: build/EMI_Reminder.ipa
