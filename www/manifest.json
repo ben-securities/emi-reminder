@@ -2,7 +2,7 @@
   "name": "EMI Reminder",
   "short_name": "EMI Reminder",
   "description": "Clean, beautiful EMI reminders and monthly recurring bills tracker",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d1b2a",
